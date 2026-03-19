@@ -1,98 +1,139 @@
 <style>
     :root {
-        --primary-color: #2c3e50;
-        --accent-color: #3498db;
-        --success-color: #27ae60;
-        --danger-color: #e74c3c;
+        --primary: #0f172a;       /* Slate 900 */
+        --accent: #3b82f6;        /* Blue 500 */
+        --success: #10b981;       /* Emerald 500 */
+        --danger: #ef4444;        /* Red 500 */
+        --bg: #f8fafc;            /* Slate 50 */
+        --card-bg: #ffffff;
     }
 
     body { 
-        background-color: #f0f2f5; 
-        font-family: 'Inter', sans-serif; 
-        color: #333;
+        background-color: var(--bg); 
+        font-family: 'Plus Jakarta Sans', 'Inter', sans-serif; 
+        color: var(--primary);
+        letter-spacing: -0.01em;
+    }
+
+    /* Glassmorphism Effect for Header */
+    .header-section {
+        background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+        color: white;
+        padding: 40px 0;
+        margin-bottom: -50px;
+        border-radius: 0 0 30px 30px;
     }
 
     /* Card Styling */
     .card { 
         border: none; 
-        border-radius: 15px; 
-        box-shadow: 0 10px 20px rgba(0,0,0,0.05); 
-        transition: transform 0.2s;
+        border-radius: 20px; 
+        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
+        transition: all 0.3s ease;
+        background: var(--card-bg);
     }
 
-    /* Tab Styling */
+    .card:hover {
+        transform: translateY(-5px);
+    }
+
+    /* Tab Customization */
+    .nav-pills {
+        background: white;
+        padding: 8px;
+        border-radius: 15px;
+        display: inline-flex;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    }
+
     .nav-pills .nav-link {
-        color: var(--primary-color);
+        color: #64748b;
         font-weight: 600;
-        border-radius: 10px;
-        margin: 0 5px;
+        padding: 10px 25px;
+        border-radius: 12px;
+        transition: 0.3s;
     }
 
     .nav-pills .nav-link.active {
-        background-color: var(--accent-color);
-        box-shadow: 0 4px 10px rgba(52, 152, 219, 0.3);
-    }
-
-    /* Table Styling */
-    .table thead {
-        background-color: var(--primary-color);
+        background-color: var(--accent);
         color: white;
+        box-shadow: 0 10px 15px -3px rgba(59, 130, 246, 0.4);
     }
 
-    .table-hover tbody tr:hover {
-        background-color: #f1f8ff;
+    /* Table Customization */
+    .table-container { 
+        background: white; 
+        border-radius: 20px; 
+        padding: 25px; 
     }
 
-    /* Input Styling */
-    .form-control-sm {
-        border-radius: 8px;
-        border: 1px solid #ddd;
+    .table thead th {
+        background-color: #f1f5f9;
+        color: #475569;
+        text-transform: uppercase;
+        font-size: 0.75rem;
+        letter-spacing: 0.05em;
+        border: none;
+        padding: 15px;
     }
 
-    .form-control-sm:focus {
-        border-color: var(--accent-color);
-        box-shadow: 0 0 0 0.2rem rgba(52, 152, 219, 0.25);
+    .table tbody td {
+        padding: 15px;
+        border-bottom: 1px solid #f1f5f9;
+        vertical-align: middle;
     }
 
-    /* Slip Gaji Khusus (Tampilan Estetik) */
+    /* Input Field Styling */
+    .form-control {
+        border-radius: 10px;
+        border: 1px solid #e2e8f0;
+        padding: 10px 15px;
+        transition: 0.2s;
+    }
+
+    .form-control:focus {
+        border-color: var(--accent);
+        box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
+    }
+
+    /* Slip Gaji Khusus (Tampilan Cetak) */
     #slipPrintArea {
-        background: #fff;
         padding: 40px !important;
-        border: 1px solid #eee;
-        position: relative;
+        border-radius: 0;
     }
 
-    #slipPrintArea::before {
-        content: "CONFIDENTIAL";
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%) rotate(-45deg);
-        font-size: 4rem;
-        opacity: 0.03;
-        pointer-events: none;
-    }
-
-    .slip-header h4 {
-        letter-spacing: 2px;
+    .slip-header h5 {
         font-weight: 800;
-        color: var(--primary-color);
+        letter-spacing: 1px;
+        color: var(--primary);
     }
 
-    .total-row {
-        background-color: #f8f9fa;
-        border-top: 2px dashed #ddd;
-        border-bottom: 2px solid var(--primary-color);
-        font-size: 1.1rem;
+    .signature-section {
+        margin-top: 60px;
     }
 
-    /* Tombol */
-    .btn-primary { background-color: var(--accent-color); border: none; }
-    .btn-dark { background-color: var(--primary-color); border: none; }
+    .sig-space {
+        margin-top: 70px;
+        font-weight: 700;
+        text-decoration: underline;
+    }
 
-    /* Responsive */
-    @media (max-width: 768px) {
-        .container { padding: 10px; }
-        h2 { font-size: 1.5rem; }
+    /* Badge Custom */
+    .badge-iuran {
+        background: #fef2f2;
+        color: var(--danger);
+        border: 1px solid #fee2e2;
+        font-weight: 700;
+        padding: 10px 20px;
+        border-radius: 12px;
+    }
+
+    /* Print Optimization */
+    @media print {
+        .no-print, .nav-pills, .btn, .header-section { display: none !important; }
+        body { background: white; padding: 0; }
+        .container { max-width: 100%; width: 100%; padding: 0; }
+        #slipPrintArea { border: none; padding: 0 !important; }
+        .modal { position: relative; }
     }
 </style>
