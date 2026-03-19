@@ -3,106 +3,142 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistem Penggajian & Pengeluaran - KKN 2026</title>
+    <title>Sistem Payroll KKN 2026 - Digital Slip</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    
     <style>
-        body { background-color: #f8f9fa; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-        .card { border: none; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); margin-bottom: 20px; }
-        .nav-pills .nav-link.active { background-color: #0d6efd; }
-        .table-responsive { border-radius: 8px; overflow: hidden; }
-        .slip-header { border-bottom: 2px solid #333; margin-bottom: 15px; padding-bottom: 10px; }
-        .total-row { background-color: #e9ecef; font-weight: bold; }
-        @media print { .no-print { display: none; } }
+        :root {
+            --primary: #2c3e50;
+            --accent: #3498db;
+            --bg: #f4f7f6;
+        }
+
+        body { 
+            background-color: var(--bg); 
+            font-family: 'Inter', sans-serif; 
+            color: #333;
+        }
+
+        /* Navigasi & Card */
+        .card { border: none; border-radius: 15px; box-shadow: 0 8px 20px rgba(0,0,0,0.05); }
+        .nav-pills .nav-link { color: var(--primary); font-weight: 600; border-radius: 10px; }
+        .nav-pills .nav-link.active { background-color: var(--accent); }
+
+        /* Table */
+        .table-container { background: white; border-radius: 15px; padding: 20px; }
+        thead { background: var(--primary); color: white; }
+
+        /* Slip Gaji Styling (Untuk Tampilan & Cetak) */
+        #slipPrintArea {
+            background: white;
+            padding: 30px;
+            border: 1px solid #eee;
+            color: black !important;
+        }
+
+        .slip-header { border-bottom: 2px solid #000; margin-bottom: 20px; padding-bottom: 10px; }
+        
+        /* Tanda Tangan */
+        .signature-section {
+            margin-top: 50px;
+            display: flex;
+            justify-content: space-between;
+        }
+        .sig-box { text-align: center; width: 200px; }
+        .sig-space { margin-top: 60px; border-top: 1px solid #000; padding-top: 5px; font-weight: bold; }
+
+        /* No Print for Buttons */
+        @media print {
+            .no-print { display: none !important; }
+            body { background: white; }
+            .modal-content { border: none !important; }
+            .modal-header, .modal-footer { display: none !important; }
+            #slipPrintArea { width: 100%; border: none; }
+        }
     </style>
 </head>
 <body>
 
-<div class="container py-4">
-    <h2 class="text-center mb-4">📊 Manajemen Honor & Pengeluaran</h2>
+<div class="container py-5">
+    <div class="text-center mb-5">
+        <h2 class="fw-800">📋 SISTEM PAYROLL & AUDIT KKN 2026</h2>
+        <p class="text-muted">Manajemen Honor, Uang Makan, dan Kas Kelompok</p>
+    </div>
 
-    <ul class="nav nav-pills nav-justified mb-4 no-print" id="pills-tab" role="tablist">
-        <li class="nav-item">
-            <button class="nav-link active" id="tab-payroll" data-bs-toggle="pill" data-bs-target="#content-payroll">💰 Payroll & Slip</button>
-        </li>
-        <li class="nav-item">
-            <button class="nav-link" id="tab-makan" data-bs-toggle="pill" data-bs-target="#content-makan">🍱 Tracking Makan</button>
-        </li>
-        <li class="nav-item">
-            <button class="nav-link" id="tab-kategori" data-bs-toggle="pill" data-bs-target="#content-kategori">📦 Kas & Kategori</button>
-        </li>
+    <ul class="nav nav-pills nav-justified mb-4 no-print" id="mainTab">
+        <li class="nav-item"><button class="nav-link active" data-bs-toggle="pill" data-bs-target="#payroll">💰 Payroll & Honor</button></li>
+        <li class="nav-item"><button class="nav-link" data-bs-toggle="pill" data-bs-target="#tracking">🍱 Tracking Makan</button></li>
+        <li class="nav-item"><button class="nav-link" data-bs-toggle="pill" data-bs-target="#admin">⚙️ Kas Kelompok</button></li>
     </ul>
 
-    <div class="tab-content" id="pills-tabContent">
+    <div class="tab-content">
         
-        <div class="tab-pane fade show active" id="content-payroll">
-            <div class="card p-3">
-                <div class="row g-3 align-items-center mb-3">
+        <div class="tab-pane fade show active" id="payroll">
+            <div class="table-container">
+                <div class="row mb-3">
                     <div class="col-md-6">
                         <input type="text" id="searchName" class="form-control" placeholder="Cari nama mahasiswa...">
                     </div>
                     <div class="col-md-6 text-md-end">
-                        <span class="badge bg-info p-2 text-dark">Potongan Iuran/Orang: <span id="displayIuran">Rp 0</span></span>
+                        <span class="badge bg-danger p-2">Iuran Kelompok: <span id="valIuran">Rp 0</span></span>
                     </div>
                 </div>
                 <div class="table-responsive">
                     <table class="table table-hover align-middle">
-                        <thead class="table-dark">
+                        <thead>
                             <tr>
-                                <th>Nama</th>
-                                <th>Hari Kerja (x40rb)</th>
+                                <th>Nama Mahasiswa</th>
+                                <th>Hari Kerja</th>
                                 <th>Tmbh Hari</th>
                                 <th>Bonus</th>
-                                <th>Makan</th>
-                                <th>Potongan</th>
+                                <th>Pot. Makan</th>
+                                <th>Pot. Lain</th>
                                 <th>Total</th>
-                                <th>Aksi</th>
+                                <th>Opsi</th>
                             </tr>
                         </thead>
-                        <tbody id="payrollTableBody">
-                            </tbody>
+                        <tbody id="payrollTable"></tbody>
                     </table>
                 </div>
             </div>
         </div>
 
-        <div class="tab-pane fade" id="content-makan">
-            <div class="card p-3 text-center">
-                <h5>Rincian Makan Per Tanggal</h5>
-                <p class="text-muted">Fitur ini menampilkan log uang makan dari data gambar yang Anda berikan.</p>
-                <div id="makanDetailArea">Pilih nama di tab Payroll untuk melihat rincian.</div>
+        <div class="tab-pane fade" id="tracking">
+            <div class="card p-4">
+                <h5>Cek Detail Makan Per Tanggal</h5>
+                <div class="input-group mb-4">
+                    <input type="text" id="makanInput" class="form-control" placeholder="Ketik nama mahasiswa...">
+                    <button class="btn btn-primary" onclick="cekMakan()">Cek Histori</button>
+                </div>
+                <div id="makanResult" class="mt-2"></div>
             </div>
         </div>
 
-        <div class="tab-pane fade" id="content-kategori">
+        <div class="tab-pane fade" id="admin">
             <div class="row">
                 <div class="col-md-4">
-                    <div class="card p-3">
-                        <h5>Input Kas Kelompok</h5>
+                    <div class="card p-4">
+                        <h6>Input Pengeluaran Kelompok</h6>
                         <hr>
-                        <div class="mb-3">
-                            <label>Kebutuhan Dapur (Rp)</label>
-                            <input type="number" id="inputDapur" class="form-control group-exp" value="474500">
+                        <label>Kebutuhan Dapur (Rp)</label>
+                        <input type="number" id="k_dapur" class="form-control mb-2" value="474500" oninput="hitungKas()">
+                        <label>Kebutuhan Posko (Rp)</label>
+                        <input type="number" id="k_posko" class="form-control mb-2" value="84000" oninput="hitungKas()">
+                        <label>Lain-lain (Rp)</label>
+                        <input type="number" id="k_lain" class="form-control mb-2" value="415500" oninput="hitungKas()">
+                        <label>Kerugian (Rp)</label>
+                        <input type="number" id="k_rugi" class="form-control mb-2" value="95000" oninput="hitungKas()">
+                        <div class="mt-3 p-3 bg-light rounded text-center">
+                            <strong>Total: </strong><span id="totalGroup">Rp 0</span>
                         </div>
-                        <div class="mb-3">
-                            <label>Kebutuhan Posko (Rp)</label>
-                            <input type="number" id="inputPosko" class="form-control group-exp" value="84000">
-                        </div>
-                        <div class="mb-3">
-                            <label>Lain-lain (Rp)</label>
-                            <input type="number" id="inputLain" class="form-control group-exp" value="415500">
-                        </div>
-                        <div class="mb-3">
-                            <label>Kerugian (Rp)</label>
-                            <input type="number" id="inputRugi" class="form-control group-exp" value="95000">
-                        </div>
-                        <button class="btn btn-primary w-100" onclick="calculateGroupExpense()">Update & Bagi Rata (41 Orang)</button>
                     </div>
                 </div>
                 <div class="col-md-8">
-                    <div class="card p-3 text-center">
-                        <h5>Ringkasan Kas</h5>
-                        <h2 class="text-danger" id="totalKas">Rp 0</h2>
-                        <p>Akan dibagi rata kepada 41 Mahasiswa.</p>
+                    <div class="card p-4 text-center">
+                        <h5>Info Iuran</h5>
+                        <p>Total pengeluaran di samping akan dibagi rata ke 41 orang.</p>
+                        <h1 class="text-primary" id="iuranFinal">Rp 0</h1>
                     </div>
                 </div>
             </div>
@@ -111,27 +147,30 @@
 </div>
 
 <div class="modal fade" id="slipModal" tabindex="-1">
-    <div class="modal-dialog">
+    <div class="modal-dialog modal-lg">
         <div class="modal-content">
-            <div class="modal-body p-4" id="slipPrintArea">
-                <div class="text-center slip-header">
-                    <h4>SLIP HONOR MAHASISWA</h4>
-                    <p>Periode: Jan - Feb 2026</p>
+            <div class="modal-body" id="slipPrintArea">
                 </div>
-                <div id="slipContent"></div>
-            </div>
             <div class="modal-footer no-print">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
-                <button type="button" class="btn btn-primary" onclick="window.print()">Cetak / PDF</button>
+                <button class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
+                <button class="btn btn-primary" onclick="window.print()">Cetak / Simpan PDF</button>
             </div>
         </div>
     </div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
 <script>
-    // DATA MASTER (Sesuai Gambar 1 & Daftar 41 Orang)
-    const mahasiswaData = [
+    // DATA MASTER UANG MAKAN (HISTORI TANGGAL)
+    const logMakan = {
+        "April Yaman Zai": [{t:"30/01", b:8500}, {t:"02/02", b:9500}, {t:"11/02", b:19500}],
+        "Afrida Sitanggang": [{t:"29/01", b:10000}, {t:"11/02", b:22000}],
+        // ... Pola ini bisa Anda teruskan untuk semua mahasiswa ...
+    };
+
+    // DAFTAR TOTAL MAKAN DARI GAMBAR
+    const dataMhs = [
         { nama: "April Yaman Zai", makan: 114500 },
         { nama: "Afrida Sitanggang", makan: 155500 },
         { nama: "Alfa Safrildo Simanjuntak", makan: 179500 },
@@ -175,98 +214,125 @@
         { nama: "William Syah Putra Zamasi", makan: 177000 }
     ];
 
-    let iuranPerOrang = 0;
-    const UPAH_HARIAN = 40000;
+    let iuran = 0;
+    const rate = 40000;
 
-    function formatRupiah(angka) {
-        return "Rp " + new Intl.NumberFormat('id-ID').format(angka);
-    }
+    function format(n) { return "Rp " + new Intl.NumberFormat('id-ID').format(n); }
 
-    function calculateGroupExpense() {
-        const dapur = parseFloat(document.getElementById('inputDapur').value) || 0;
-        const posko = parseFloat(document.getElementById('inputPosko').value) || 0;
-        const lain = parseFloat(document.getElementById('inputLain').value) || 0;
-        const rugi = parseFloat(document.getElementById('inputRugi').value) || 0;
-
-        const total = dapur + posko + lain + rugi;
-        iuranPerOrang = Math.round(total / 41);
-
-        document.getElementById('totalKas').innerText = formatRupiah(total);
-        document.getElementById('displayIuran').innerText = formatRupiah(iuranPerOrang);
+    function hitungKas() {
+        const total = (Number(document.getElementById('k_dapur').value) || 0) + 
+                      (Number(document.getElementById('k_posko').value) || 0) +
+                      (Number(document.getElementById('k_lain').value) || 0) +
+                      (Number(document.getElementById('k_rugi').value) || 0);
+        iuran = Math.ceil(total / 41);
+        document.getElementById('totalGroup').innerText = format(total);
+        document.getElementById('iuranFinal').innerText = format(iuran);
+        document.getElementById('valIuran').innerText = format(iuran);
         renderTable();
     }
 
     function renderTable() {
-        const tbody = document.getElementById('payrollTableBody');
-        const filter = document.getElementById('searchName').value.toLowerCase();
-        tbody.innerHTML = "";
+        const query = document.getElementById('searchName').value.toLowerCase();
+        const body = document.getElementById('payrollTable');
+        body.innerHTML = "";
+        
+        dataMhs.forEach((m, i) => {
+            if(m.nama.toLowerCase().includes(query)) {
+                const h = localStorage.getItem(`h_${i}`) || 0;
+                const t = localStorage.getItem(`t_${i}`) || 0;
+                const b = localStorage.getItem(`b_${i}`) || 0;
+                const p = localStorage.getItem(`p_${i}`) || 0;
+                
+                const income = (Number(h) + Number(t)) * rate + Number(b);
+                const outcome = m.makan + iuran + Number(p);
+                const net = income - outcome;
 
-        mahasiswaData.forEach((m, index) => {
-            if (m.nama.toLowerCase().includes(filter)) {
-                const hariKerja = localStorage.getItem(`hari_${index}`) || 0;
-                const tmbhHari = localStorage.getItem(`tmbh_${index}`) || 0;
-                const bonus = localStorage.getItem(`bonus_${index}`) || 0;
-                const potLain = localStorage.getItem(`pot_${index}`) || 0;
-
-                const upahTotal = (parseInt(hariKerja) + parseInt(tmbhHari)) * UPAH_HARIAN;
-                const grandTotal = upahTotal + m.makan + parseInt(bonus) - iuranPerOrang - parseInt(potLain);
-
-                tbody.innerHTML += `
+                body.innerHTML += `
                     <tr>
-                        <td><strong>${m.nama}</strong></td>
-                        <td><input type="number" class="form-control form-control-sm w-75" value="${hariKerja}" onchange="saveData(${index}, 'hari', this.value)"></td>
-                        <td><input type="number" class="form-control form-control-sm w-75" value="${tmbhHari}" onchange="saveData(${index}, 'tmbh', this.value)"></td>
-                        <td><input type="number" class="form-control form-control-sm" value="${bonus}" onchange="saveData(${index}, 'bonus', this.value)"></td>
-                        <td>${formatRupiah(m.makan)}</td>
-                        <td><input type="number" class="form-control form-control-sm" value="${potLain}" onchange="saveData(${index}, 'pot', this.value)"></td>
-                        <td class="fw-bold text-primary">${formatRupiah(grandTotal)}</td>
-                        <td>
-                            <button class="btn btn-sm btn-dark" onclick="showSlip(${index})">Slip</button>
-                        </td>
+                        <td class="small"><strong>${m.nama}</strong></td>
+                        <td><input type="number" class="form-control form-control-sm" value="${h}" onchange="save(${i},'h',this.value)"></td>
+                        <td><input type="number" class="form-control form-control-sm" value="${t}" onchange="save(${i},'t',this.value)"></td>
+                        <td><input type="number" class="form-control form-control-sm" value="${b}" onchange="save(${i},'b',this.value)"></td>
+                        <td class="text-danger small">${format(m.makan)}</td>
+                        <td><input type="number" class="form-control form-control-sm" value="${p}" onchange="save(${i},'p',this.value)"></td>
+                        <td class="fw-bold">${format(net)}</td>
+                        <td><button class="btn btn-sm btn-dark" onclick="showSlip(${i})">Slip</button></td>
                     </tr>
                 `;
             }
         });
     }
 
-    function saveData(index, key, val) {
-        localStorage.setItem(`${key}_${index}`, val);
-        renderTable();
+    function save(i, k, v) { localStorage.setItem(`${k}_${i}`, v); renderTable(); }
+
+    function cekMakan() {
+        const name = document.getElementById('makanInput').value.toLowerCase();
+        const m = dataMhs.find(x => x.nama.toLowerCase().includes(name));
+        const res = document.getElementById('makanResult');
+        if(!m) { res.innerHTML = "Nama tidak ditemukan."; return; }
+
+        let html = `<table class="table table-sm"><tr><th>Tanggal</th><th>Biaya</th></tr>`;
+        const logs = logMakan[m.nama] || [];
+        logs.forEach(l => html += `<tr><td>${l.t}</td><td>${format(l.b)}</td></tr>`);
+        html += `<tr class="table-info"><td><strong>TOTAL</strong></td><td><strong>${format(m.makan)}</strong></td></tr></table>`;
+        res.innerHTML = html;
     }
 
-    function showSlip(index) {
-        const m = mahasiswaData[index];
-        const hari = localStorage.getItem(`hari_${index}`) || 0;
-        const tmbh = localStorage.getItem(`tmbh_${index}`) || 0;
-        const bonus = localStorage.getItem(`bonus_${index}`) || 0;
-        const potLain = localStorage.getItem(`pot_${index}`) || 0;
-        const upahTotal = (parseInt(hari) + parseInt(tmbh)) * UPAH_HARIAN;
-        const grandTotal = upahTotal + m.makan + parseInt(bonus) - iuranPerOrang - parseInt(potLain);
+    function showSlip(i) {
+        const m = dataMhs[i];
+        const h = Number(localStorage.getItem(`h_${i}`)) || 0;
+        const t = Number(localStorage.getItem(`t_${i}`)) || 0;
+        const b = Number(localStorage.getItem(`b_${i}`)) || 0;
+        const p = Number(localStorage.getItem(`p_${i}`)) || 0;
 
-        document.getElementById('slipContent').innerHTML = `
-            <table class="table table-borderless">
-                <tr><td>Nama</td><td>: <strong>${m.nama}</strong></td></tr>
-                <tr><td colspan="2"><hr></td></tr>
-                <tr><td>Upah Kerja (${hari} hari x 40rb)</td><td class="text-end">${formatRupiah(hari * UPAH_HARIAN)}</td></tr>
-                <tr><td>Tambahan Hari (${tmbh} hari x 40rb)</td><td class="text-end">${formatRupiah(tmbh * UPAH_HARIAN)}</td></tr>
-                <tr><td>Total Uang Makan</td><td class="text-end">${formatRupiah(m.makan)}</td></tr>
-                <tr><td>Bonus / Insentif</td><td class="text-end">${formatRupiah(bonus)}</td></tr>
-                <tr><td class="text-danger">Iuran Kelompok (Bagi Rata)</td><td class="text-end text-danger">-${formatRupiah(iuranPerOrang)}</td></tr>
-                <tr><td class="text-danger">Potongan Lainnya</td><td class="text-end text-danger">-${formatRupiah(potLain)}</td></tr>
-                <tr class="total-row">
-                    <td>TOTAL TERIMA</td>
-                    <td class="text-end">${formatRupiah(grandTotal)}</td>
-                </tr>
+        const inc = (h + t) * rate + b;
+        const out = m.makan + iuran + p;
+        const net = inc - out;
+
+        document.getElementById('slipPrintArea').innerHTML = `
+            <div class="slip-header text-center">
+                <h5>RINCIAN HONORARIUM MAHASISWA</h5>
+                <p>KKN UNIT 2026 - TAHUN ANGGARAN 2026</p>
+            </div>
+            <div class="row">
+                <div class="col-6"><strong>Nama:</strong> ${m.nama}</div>
+                <div class="col-6 text-end"><strong>Tanggal:</strong> ${new Date().toLocaleDateString('id-ID')}</div>
+            </div>
+            <hr>
+            <table class="table table-borderless table-sm">
+                <tr><td colspan="2" class="fw-bold text-primary">A. PENGHASILAN</td></tr>
+                <tr><td>Honor Kerja (${h} Hari x 40.000)</td><td class="text-end">${format(h*rate)}</td></tr>
+                <tr><td>Honor Tambahan (${t} Hari x 40.000)</td><td class="text-end">${format(t*rate)}</td></tr>
+                <tr><td>Bonus/Lainnya</td><td class="text-end">${format(b)}</td></tr>
+                <tr class="border-top"><td><strong>Subtotal Penghasilan</strong></td><td class="text-end"><strong>${format(inc)}</strong></td></tr>
+                
+                <tr><td colspan="2" class="fw-bold text-danger mt-3">B. POTONGAN</td></tr>
+                <tr><td>Biaya Uang Makan (Riwayat Terlampir)</td><td class="text-end">-${format(m.makan)}</td></tr>
+                <tr><td>Iuran Kelompok (Bagi Rata Kas)</td><td class="text-end">-${format(iuran)}</td></tr>
+                <tr><td>Potongan Pribadi</td><td class="text-end">-${format(p)}</td></tr>
+                <tr class="border-top"><td><strong>Subtotal Potongan</strong></td><td class="text-end text-danger"><strong>-${format(out)}</strong></td></tr>
             </table>
-            <p class="mt-4 text-center" style="font-size: 0.8rem italic;">Terima kasih atas dedikasinya.</p>
+            <div class="mt-3 p-3 bg-light d-flex justify-content-between">
+                <span class="h5">TOTAL BERSIH DITERIMA</span>
+                <span class="h5 fw-bold">${format(net)}</span>
+            </div>
+            
+            <div class="signature-section">
+                <div class="sig-box">
+                    <p>Penerima,</p>
+                    <div class="sig-space">${m.nama}</div>
+                </div>
+                <div class="sig-box">
+                    <p>Mengetahui,<br>Ketua</p>
+                    <div class="sig-space">April Yaman</div>
+                </div>
+            </div>
         `;
         new bootstrap.Modal(document.getElementById('slipModal')).show();
     }
 
     document.getElementById('searchName').addEventListener('input', renderTable);
-    
-    // Init
-    calculateGroupExpense();
+    window.onload = hitungKas;
 </script>
 </body>
 </html>
