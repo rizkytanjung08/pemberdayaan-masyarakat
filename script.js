@@ -1,234 +1,162 @@
 <script>
-    // ==========================================
-    // 1. DATA MASTER (UANG MAKAN & 41 MAHASISWA)
-    // ==========================================
-    
-    // Rincian per tanggal (Contoh mapping dari Gambar 1)
-    // Kamu bisa melengkapi rincian ini untuk semua mahasiswa sesuai kebutuhan
-    const rincianMakanHarian = {
-        "April Yaman Zai": [{tgl:"30/01", rp:8500}, {tgl:"02/02", rp:9500}, {tgl:"03/02", rp:9500}, {tgl:"04/02", rp:3000}, {tgl:"11/02", rp:19500}, {tgl:"12/02", rp:4500}, {tgl:"16/02", rp:5500}, {tgl:"18/02", rp:6000}, {tgl:"20/02", rp:9000}, {tgl:"24/02", rp:10000}, {tgl:"25/02", rp:9000}, {tgl:"27/02", rp:18000}],
-        "Afrida Sitanggang": [{tgl:"29/01", rp:10000}, {tgl:"30/01", rp:8500}, {tgl:"02/02", rp:9500}, {tgl:"03/02", rp:9500}, {tgl:"04/02", rp:3000}, {tgl:"09/02", rp:9000}, {tgl:"10/02", rp:7000}, {tgl:"11/02", rp:22000}, {tgl:"12/02", rp:4500}, {tgl:"16/02", rp:5500}, {tgl:"17/02", rp:10000}, {tgl:"18/02", rp:3000}, {tgl:"20/02", rp:9000}, {tgl:"24/02", rp:10000}, {tgl:"25/02", rp:5000}, {tgl:"27/02", rp:18000}],
-        "Rizki Pasrah Telaumbanua": [{tgl:"28/01", rp:15000}, {tgl:"29/01", rp:10000}, {tgl:"30/01", rp:8500}, {tgl:"02/02", rp:9500}, {tgl:"03/02", rp:9500}, {tgl:"04/02", rp:3000}, {tgl:"09/02", rp:9000}, {tgl:"10/02", rp:7000}, {tgl:"11/02", rp:22000}, {tgl:"12/02", rp:4500}, {tgl:"16/02", rp:5500}, {tgl:"17/02", rp:10000}, {tgl:"18/02", rp:3000}, {tgl:"20/02", rp:9000}, {tgl:"24/02", rp:10000}, {tgl:"25/02", rp:9000}, {tgl:"27/02", rp:21000}]
-        // Tambahkan nama lainnya di sini...
-    };
-
-    // Daftar 41 Mahasiswa (Total Makan sesuai kolom hijau gambar)
-    const listMahasiswa = [
-        { nama: "April Yaman Zai", makan: 114500 },
-        { nama: "Afrida Sitanggang", makan: 155500 },
-        { nama: "Alfa Safrildo Simanjuntak", makan: 179500 },
-        { nama: "Alvais Hanafi Sormin", makan: 127500 },
-        { nama: "Aprilda Anantesa Br Bukit", makan: 138000 },
-        { nama: "Aurellia Lestari Harefa", makan: 113500 },
-        { nama: "Azi Muhammad Akbar Rambe", makan: 23500 },
-        { nama: "Berkat Putra Saleh Gulo", makan: 179500 },
-        { nama: "Bunga Nurul Lestari", makan: 120500 },
-        { nama: "Cherie Stefany Aritonang", makan: 134500 },
-        { nama: "Deby Anzely", makan: 40500 },
-        { nama: "Dedi Darman Halawa", makan: 149000 },
-        { nama: "Djenar Maesa Ayu", makan: 57000 },
-        { nama: "Dwi Vatra Aulia", makan: 100000 },
-        { nama: "Ezar Aditya Alfariz Nasution", makan: 119500 },
-        { nama: "Gabriel Dhava Obrien Sinamo", makan: 147000 },
-        { nama: "Glen Zona Agustinus Purba", makan: 182000 },
-        { nama: "Glori Yana Br Sitepu", makan: 138000 },
-        { nama: "Grisnauli Olyvya Sinaga", makan: 113000 },
-        { nama: "Hafizh Hakim Hendrian", makan: 92500 },
-        { nama: "Ilham Haramain", makan: 20000 },
-        { nama: "Indah Syahputri", makan: 100000 },
-        { nama: "Lius Yudika Lafau", makan: 118500 },
-        { nama: "Martinus Gulo", makan: 179500 },
-        { nama: "Muhammad Fadlin Azima", makan: 50000 },
-        { nama: "Mukhlis Halawa", makan: 177000 },
-        { nama: "Nico Pratama", makan: 122000 },
-        { nama: "Nurazizah Marpaung", makan: 102500 },
-        { nama: "Ones Torius Halawa", makan: 145500 },
-        { nama: "Pebri Juan Saragih", makan: 134000 },
-        { nama: "Pera Anjani Br Perangin angin", makan: 96500 },
-        { nama: "Pradita Keysha", makan: 45500 },
-        { nama: "Rifka Afriyani Sitanggang", makan: 69500 },
-        { nama: "Rizki Pasrah Telaumbanua", makan: 165000 },
-        { nama: "Shah Zhahan Arassi Sihombing", makan: 117000 },
-        { nama: "Shannia Delofa Sinaga", makan: 119000 },
-        { nama: "Sherly Maulidza", makan: 107000 },
-        { nama: "Sri Kandi", makan: 78500 },
-        { nama: "Sri Muliani", makan: 105000 },
-        { nama: "Tony Blayer Simangunsong", makan: 117500 },
-        { nama: "William Syah Putra Zamasi", makan: 177000 }
+    // 1. DATABASE MASTER (Masukkan 41 Nama di Sini)
+    // v: Nilai makan per tanggal (19 kolom), t: Total akumulasi makan
+    const rate = 40000; // Honor per hari
+    const dataPema = [
+        { n: "April Yaman Zai", v: [0,0,8500,9500,9500,3000,0,2500,19500,4500,5500,0,6000,0,9000,0,10000,9000,18000], t: 114500 },
+        { n: "Afrida Sitanggang", v: [12000,10000,8500,9500,9500,3000,9000,7000,22000,4500,5500,10000,3000,0,9000,0,10000,5000,18000], t: 155500 },
+        { n: "Alfa Safrildo Simanjuntak", v: [12000,10000,8500,9500,9500,3000,9000,7000,19500,4500,5500,10000,10000,14000,9000,12000,10000,9000,18000], t: 179500 },
+        { n: "Alvais Hanafi Sormin", v: [12000,10000,8500,9500,9500,3000,9000,7000,14500,4500,5500,10000,0,0,0,0,5000,9000,10000], t: 127500 },
+        { n: "Aprilda Anantesa Br Bukit", v: [12000,10000,8500,9500,9500,3000,9000,7000,0,4500,5500,10000,10000,12000,9000,0,0,9000,0], t: 138000 },
+        { n: "Aurellia Lestari Harefa", v: [12000,10000,8500,9500,9500,3000,0,7000,0,4500,5500,10000,10000,0,0,0,10000,5000,10000], t: 113500 },
+        { n: "Azi Muhammad Akbar Rambe", v: [0,0,0,9500,0,0,9000,5000,0,0,0,0,0,0,0,0,0,0,0], t: 23500 },
+        { n: "Berkat Putra Saleh Gulo", v: [12000,10000,8500,9500,9500,3000,9000,7000,19500,4500,5500,10000,10000,14000,9000,12000,10000,9000,18000], t: 179500 },
+        { n: "Bunga Nurul Lestari", v: [12000,10000,8500,9500,9500,3000,0,7000,14500,4500,5500,10000,10000,0,0,0,10000,7000,0], t: 120500 },
+        { n: "Cherie Stefany Aritonang", v: [12000,10000,8500,9500,9500,3000,9000,7000,0,4500,5500,10000,10000,12000,9000,12000,0,0,0], t: 134500 },
+        { n: "Deby Anzely", v: [12000,10000,8500,0,0,0,0,0,0,0,0,0,0,0,0,10000,0,0,0], t: 40500 },
+        { n: "Dedi Darman Halawa", v: [12000,10000,8500,9500,9500,3000,9000,7000,14500,4500,5500,10000,10000,14000,9000,12000,0,0,0], t: 149000 },
+        { n: "Djenar Maesa Ayu", v: [0,10000,8500,9500,9500,0,0,0,0,0,0,0,10000,0,9500,0,0,0,0], t: 57000 },
+        { n: "Dwi Vatra Aulia", v: [0,0,8500,9500,9500,3000,9000,7000,0,4500,5500,10000,10000,0,9000,0,10000,4500,0], t: 100000 },
+        { n: "Ezar Aditya Alfariz Nasution", v: [12000,10000,8500,9500,9500,3000,9000,7000,19500,4500,5500,10000,10000,0,0,0,0,0,0], t: 119500 },
+        { n: "Gabriel Dhava Obrien Sinamo", v: [12000,10000,8500,9500,9500,3000,9000,7000,24500,4500,5500,10000,10000,14000,10000,0,0,0,0], t: 147000 },
+        { n: "Glen Zona Agustinus Purba", v: [12000,10000,8500,9500,9500,3000,9000,7000,14500,4500,5500,10000,10000,14000,9000,12000,10000,14000,18000], t: 182000 },
+        { n: "Glori Yana Br Sitepu", v: [12000,10000,8500,9500,9500,3000,9000,7000,0,4500,5500,10000,10000,12000,9000,12000,4500,0,0], t: 138000 },
+        { n: "Grisnauli Olyvya Sinaga", v: [12000,10000,8500,9500,9500,3000,9000,7000,0,4500,5500,10000,10000,0,0,12000,0,2500,0], t: 113000 },
+        { n: "Hafizh Hakim Hendrian", v: [12000,10000,8500,9500,9500,3000,9000,7000,0,4500,5500,10000,4000,0,0,0,0,0,0], t: 92500 },
+        { n: "Ilham Haramain", v: [0,10000,0,0,0,0,0,0,0,0,0,10000,0,0,0,0,0,0,0], t: 20000 },
+        { n: "Indah Syahputri", v: [12000,10000,8500,9500,9500,3000,0,7000,0,4500,5500,10000,10000,10500,0,0,0,0,0], t: 100000 },
+        { n: "Lius Yudika Lafau", v: [12000,10000,8500,9500,9500,3000,9000,7000,14500,4500,5500,10000,6000,0,0,0,0,0,0], t: 118500 },
+        { n: "Martinus Gulo", v: [12000,10000,8500,9500,9500,3000,9000,7000,19500,4500,5500,10000,10000,14000,9000,12000,10000,9000,18000], t: 179500 },
+        { n: "Muhammad Fadlin Azima", v: [12000,10000,8500,9500,0,0,0,0,0,0,0,10000,0,0,0,0,0,0,0], t: 50000 },
+        { n: "Mukhlis Halawa", v: [12000,10000,8500,9500,9500,3000,9000,7000,14500,4500,5500,10000,10000,12000,9000,12000,10000,9000,18000], t: 177000 },
+        { n: "Nico Pratama", v: [12000,10000,8500,9500,9500,3000,9000,7000,14500,4500,5500,10000,10000,9000,0,0,0,0,0], t: 122000 },
+        { n: "Nurazizah Marpaung", v: [12000,10000,8500,9500,9500,3000,0,7000,0,4500,5500,10000,4000,0,9000,0,0,0,10000], t: 102500 },
+        { n: "Ones Torius Halawa", v: [12000,10000,8500,9500,9500,3000,9000,7000,14500,4500,5500,10000,10000,14000,9000,0,0,0,0], t: 145500 },
+        { n: "Pebri Juan Saragih", v: [12000,10000,8500,9500,9500,3000,9000,7000,6500,4500,5500,10000,6000,0,0,0,10000,5000,18000], t: 134000 },
+        { n: "Pera Anjani Br Perangin angin", v: [12000,10000,8500,9500,9500,3000,0,7000,0,4500,5500,10000,4000,0,0,0,10000,3000,0], t: 96500 },
+        { n: "Pradita Keysha", v: [12000,10000,0,0,0,0,0,0,0,0,0,10000,0,13500,0,0,0,0,0], t: 45500 },
+        { n: "Rifka Afriyani Sitanggang", v: [0,0,8500,9500,9500,3000,0,0,0,0,0,10000,0,0,9000,0,10000,0,10000], t: 69500 },
+        { n: "Rizki Pasrah Telaumbanua", v: [12000,10000,8500,9500,9500,3000,9000,7000,14500,4500,5500,10000,10000,14000,9000,12000,10000,0,18000], t: 165000 },
+        { n: "Shah Zhahan Arassi Sihombing", v: [12000,10000,8500,9500,9500,3000,9000,7000,14500,4500,5500,10000,10000,0,0,0,0,0,0], t: 117000 },
+        { n: "Shannia Delofa Sinaga", v: [12000,10000,8500,9500,9500,3000,9000,7000,14500,4500,5500,10000,10000,0,0,0,0,0,0], t: 119000 },
+        { n: "Sherly Maulidza", v: [12000,10000,8500,9500,9500,3000,9000,7000,0,4500,5500,10000,4000,0,9000,0,0,5000,0], t: 107000 },
+        { n: "Sri Kandi", v: [12000,10000,8500,9500,0,3000,0,7000,0,4500,5500,0,9500,9000,0,0,0,0,0], t: 78500 },
+        { n: "Sri Muliani", v: [12000,10000,8500,9500,9500,3000,0,7000,0,4500,5500,10000,10000,5500,0,0,0,0,0], t: 105000 },
+        { n: "Tony Blayer Simangunsong", v: [12000,10000,8500,9500,9500,3000,9000,7000,14500,4500,5500,10000,10000,0,0,0,0,0,0], t: 117500 },
+        { n: "William Syah Putra Zamasi", v: [12000,10000,8500,9500,9500,3000,9000,7000,6500,4500,5500,10000,10000,14000,9000,12000,10000,9000,18000], t: 177000 }
     ];
 
-    const HONOR_PER_HARI = 40000;
-    let iuranPerOrang = 0;
+    const tanggalList = ["28/01", "29/01", "30/01", "02/02", "03/02", "04/02", "09/02", "10/02", "11/02", "12/02", "16/02", "17/02", "18/02", "19/02", "20/02", "21/02", "24/02", "25/02", "27/02"];
+    let iuranPerMhs = 0;
 
-    // ==========================================
-    // 2. FUNGSI UTILITAS
-    // ==========================================
-    function toRp(n) {
-        return "Rp " + new Intl.NumberFormat('id-ID').format(n);
-    }
+    // 2. FUNGSI FORMAT RUPIAH
+    function format(n) { return "Rp " + new Intl.NumberFormat('id-ID').format(n); }
 
-    // ==========================================
-    // 3. LOGIKA KAS KELOMPOK (ADMIN TAB)
-    // ==========================================
-    function updateFinance() {
-        const d = parseFloat(document.getElementById('k_dapur').value) || 0;
-        const p = parseFloat(document.getElementById('k_posko').value) || 0;
-        const l = parseFloat(document.getElementById('k_lain').value) || 0;
-        const r = parseFloat(document.getElementById('k_rugi').value) || 0;
-
-        const totalKelompok = d + p + l + r;
-        iuranPerOrang = Math.ceil(totalKelompok / 41);
-
-        document.getElementById('totalGroup').innerText = toRp(totalKelompok);
-        document.getElementById('iuranFinal').innerText = toRp(iuranPerOrang);
-        document.getElementById('valIuran').innerText = toRp(iuranPerOrang);
+    // 3. LOGIKA KAS & IURAN
+    function hitungKas() {
+        const d = Number(document.getElementById('k_dapur').value) || 0;
+        const p = Number(document.getElementById('k_posko').value) || 0;
+        const l = Number(document.getElementById('k_lain').value) || 0;
+        const r = Number(document.getElementById('k_rugi').value) || 0;
         
-        renderPayroll();
+        const totalKas = d + p + l + r;
+        iuranPerMhs = Math.ceil(totalKas / 41);
+        
+        document.getElementById('totalGroup').innerText = format(totalKas);
+        document.getElementById('iuranFinal').innerText = format(iuranPerMhs);
+        renderTable();
     }
 
-    // ==========================================
-    // 4. RENDER TABEL UTAMA
-    // ==========================================
-    function renderPayroll() {
+    // 4. RENDER TABEL PAYROLL (MOBILE FRIENDLY)
+    function renderTable() {
         const search = document.getElementById('searchName').value.toLowerCase();
-        const tbody = document.getElementById('payrollTable');
-        tbody.innerHTML = "";
+        const body = document.getElementById('payrollTable');
+        body.innerHTML = "";
+        
+        dataPema.forEach((m, i) => {
+            if(m.n.toLowerCase().includes(search)) {
+                // Ambil data tersimpan dari LocalStorage
+                const h = localStorage.getItem(`h_${i}`) || 0;
+                const b = localStorage.getItem(`b_${i}`) || 0;
+                const p = localStorage.getItem(`p_${i}`) || 0;
+                
+                const income = (Number(h) * rate) + Number(b);
+                const outcome = m.t + iuranPerMhs + Number(p);
+                const net = income - outcome;
 
-        listMahasiswa.forEach((mhs, id) => {
-            if (mhs.nama.toLowerCase().includes(search)) {
-                // Load data dari storage
-                const h = localStorage.getItem(`h_${id}`) || 0;
-                const t = localStorage.getItem(`t_${id}`) || 0;
-                const b = localStorage.getItem(`b_${id}`) || 0;
-                const p = localStorage.getItem(`p_${id}`) || 0;
-
-                const income = (parseInt(h) + parseInt(t)) * HONOR_PER_HARI + parseInt(b);
-                const outcome = mhs.makan + iuranPerOrang + parseInt(p);
-                const sisa = income - outcome;
-
-                tbody.innerHTML += `
+                body.innerHTML += `
                     <tr>
-                        <td class="small"><strong>${mhs.nama}</strong></td>
-                        <td><input type="number" class="form-control form-control-sm" value="${h}" onchange="saveData(${id},'h',this.value)"></td>
-                        <td><input type="number" class="form-control form-control-sm" value="${t}" onchange="saveData(${id},'t',this.value)"></td>
-                        <td><input type="number" class="form-control form-control-sm" value="${b}" onchange="saveData(${id},'b',this.value)"></td>
-                        <td class="text-danger small fw-bold">-${toRp(mhs.makan)}</td>
-                        <td><input type="number" class="form-control form-control-sm" value="${p}" onchange="saveData(${id},'p',this.value)"></td>
-                        <td class="fw-bold ${sisa >= 0 ? 'text-success' : 'text-danger'}">${toRp(sisa)}</td>
-                        <td><button class="btn btn-sm btn-dark" onclick="viewSlip(${id})">Slip</button></td>
-                    </tr>
-                `;
+                        <td data-label="Mahasiswa"><strong>${m.n}</strong></td>
+                        <td data-label="Hari Kerja"><input type="number" class="form-control form-control-sm" value="${h}" onchange="save(${i},'h',this.value)"></td>
+                        <td data-label="Bonus"><input type="number" class="form-control form-control-sm" value="${b}" onchange="save(${i},'b',this.value)"></td>
+                        <td data-label="Pot. Makan" class="text-danger small">${format(m.t)}</td>
+                        <td data-label="Pot. Lain"><input type="number" class="form-control form-control-sm" value="${p}" onchange="save(${i},'p',this.value)"></td>
+                        <td data-label="Total Net" class="fw-bold text-primary">${format(net)}</td>
+                        <td data-label="Opsi"><button class="btn btn-sm btn-dark" onclick="showSlip(${i})">SLIP</button></td>
+                    </tr>`;
             }
         });
     }
 
-    function saveData(id, key, val) {
-        localStorage.setItem(`${key}_${id}`, val);
-        renderPayroll();
-    }
+    // 5. AUTO SAVE DATA KE BROWSER
+    function save(i, k, v) { localStorage.setItem(`${k}_${i}`, v); renderTable(); }
 
-    // ==========================================
-    // 5. TRACKING MAKAN (TAB 2)
-    // ==========================================
-    function cekMakan() {
-        const input = document.getElementById('makanInput').value.toLowerCase();
-        const res = document.getElementById('makanResult');
-        const m = listMahasiswa.find(x => x.nama.toLowerCase().includes(input));
-
-        if (!m || input === "") {
-            res.innerHTML = `<div class="alert alert-light">Masukkan nama mahasiswa yang terdaftar.</div>`;
-            return;
-        }
-
-        const log = rincianMakanHarian[m.nama] || [];
-        let html = `
-            <div class="mb-3"><h6>Histori: <strong>${m.nama}</strong></h6></div>
-            <table class="table table-sm table-bordered bg-white">
-                <thead class="table-light"><tr><th>Tanggal</th><th>Biaya Makan</th></tr></thead>
-                <tbody>`;
+    // 6. TAMPILKAN SLIP MODAL
+    function showSlip(i) {
+        const m = dataPema[i];
+        const h = Number(localStorage.getItem(`h_${i}`)) || 0;
+        const b = Number(localStorage.getItem(`b_${i}`)) || 0;
+        const p = Number(localStorage.getItem(`p_${i}`)) || 0;
         
-        if (log.length === 0) {
-            html += `<tr><td colspan="2" class="text-muted text-center">Detail harian belum tersedia.</td></tr>`;
-        } else {
-            log.forEach(item => {
-                html += `<tr><td>${item.tgl}</td><td>${toRp(item.rp)}</td></tr>`;
-            });
-        }
-        
-        html += `<tr class="table-warning"><td><strong>TOTAL TERPAKAI</strong></td><td><strong>${toRp(m.makan)}</strong></td></tr></tbody></table>`;
-        res.innerHTML = html;
-    }
-
-    // ==========================================
-    // 6. SLIP GAJI & CETAK
-    // ==========================================
-    function viewSlip(id) {
-        const m = listMahasiswa[id];
-        const h = parseInt(localStorage.getItem(`h_${id}`)) || 0;
-        const t = parseInt(localStorage.getItem(`t_${id}`)) || 0;
-        const b = parseInt(localStorage.getItem(`b_${id}`)) || 0;
-        const p = parseInt(localStorage.getItem(`p_${id}`)) || 0;
-
-        const income = (h + t) * HONOR_PER_HARI + b;
-        const outcome = m.makan + iuranPerOrang + p;
-        const net = income - outcome;
+        const inc = (h * rate) + b;
+        const out = m.t + iuranPerMhs + p;
+        const net = inc - out;
 
         document.getElementById('slipPrintArea').innerHTML = `
-            <div class="text-center mb-4">
-                <h5 class="fw-bold mb-0">SLIP PEMBAYARAN HONOR MAHASISWA</h5>
-                <p class="small text-uppercase">KKN UNIT 2026 - TAHUN 2026</p>
-                <div style="border-bottom: 2px solid #000; margin-top: 10px;"></div>
+            <div class="slip-header text-center">
+                <h5 class="mb-0">RINCIAN HONORARIUM MAHASISWA</h5>
+                <p class="small">KKN UNIT PEMA - PERIODE JAN/FEB 2026</p>
             </div>
-
-            <div class="row mb-3 small">
-                <div class="col-6">NAMA: <strong>${m.nama}</strong></div>
-                <div class="col-6 text-end text-muted">DICETAK: ${new Date().toLocaleDateString('id-ID')}</div>
+            <div class="row small mb-2">
+                <div class="col-6">Nama: <b>${m.n}</b></div>
+                <div class="col-6 text-end">${new Date().toLocaleDateString('id-ID')}</div>
             </div>
-
-            <table class="table table-sm table-borderless mb-0">
-                <tr class="table-light"><td colspan="2"><strong>I. PENDAPATAN (+)</strong></td></tr>
-                <tr><td>Upah Kerja (${h} Hari x 40rb)</td><td class="text-end">${toRp(h*HONOR_PER_HARI)}</td></tr>
-                <tr><td>Tambahan Hari (${t} Hari x 40rb)</td><td class="text-end">${toRp(t*HONOR_PER_HARI)}</td></tr>
-                <tr><td>Bonus / Insentif</td><td class="text-end">${toRp(b)}</td></tr>
-                <tr class="border-top fw-bold"><td>Total Pendapatan Kotor</td><td class="text-end">${toRp(income)}</td></tr>
-
-                <tr><td colspan="2">&nbsp;</td></tr>
-
-                <tr class="table-light"><td colspan="2"><strong>II. POTONGAN PENGELUARAN (-)</strong></td></tr>
-                <tr><td>Uang Makan (Riwayat Terlampir)</td><td class="text-end text-danger">-${toRp(m.makan)}</td></tr>
-                <tr><td>Iuran Kas Kelompok (Bagi Rata)</td><td class="text-end text-danger">-${toRp(iuranPerOrang)}</td></tr>
-                <tr><td>Potongan Lain-lain</td><td class="text-end text-danger">-${toRp(p)}</td></tr>
-                <tr class="border-top fw-bold text-danger"><td>Total Potongan</td><td class="text-end">-${toRp(outcome)}</td></tr>
+            <table class="table table-borderless table-sm small">
+                <tr class="table-light"><td><b>A. PENGHASILAN</b></td><td class="text-end"></td></tr>
+                <tr><td>Honor Kerja (${h} Hari x 40rb)</td><td class="text-end">${format(h*rate)}</td></tr>
+                <tr><td>Bonus / Tambahan</td><td class="text-end">${format(b)}</td></tr>
+                <tr class="table-light"><td><b>B. POTONGAN</b></td><td class="text-end"></td></tr>
+                <tr><td>Akumulasi Uang Makan</td><td class="text-end text-danger">-${format(m.t)}</td></tr>
+                <tr><td>Iuran Kas (Bagi Rata)</td><td class="text-end text-danger">-${format(iuranPerMhs)}</td></tr>
+                <tr><td>Potongan Lainnya</td><td class="text-end text-danger">-${format(p)}</td></tr>
+                <tr class="border-top">
+                    <td><b class="h6">TOTAL DITERIMA</b></td>
+                    <td class="text-end"><b class="h6 text-primary">${format(net)}</b></td>
+                </tr>
             </table>
-
-            <div class="mt-4 p-3 d-flex justify-content-between align-items-center bg-dark text-white rounded">
-                <span class="fw-bold">SISA SALDO DITERIMA</span>
-                <span class="h4 mb-0 fw-800">${toRp(net)}</span>
-            </div>
-
-            <div class="signature-section mt-5">
-                <div class="sig-box text-center">
-                    <p class="mb-0">Penerima,</p>
-                    <div class="sig-space"></div>
-                    <p class="mt-2 fw-bold text-uppercase">${m.nama}</p>
-                </div>
-                <div class="sig-box text-center">
-                    <p class="mb-0">Mengetahui,<br>Ketua Unit</p>
-                    <div class="sig-space"></div>
-                    <p class="mt-2 fw-bold text-uppercase">April Yaman</p>
-                </div>
-            </div>
-
-            <div class="mt-5 text-center text-muted no-print" style="font-size: 0.7rem;">
-                <p>*Gunakan tombol Cetak untuk menyimpan dalam format PDF atau kertas.</p>
+            <div class="signature-section">
+                <div class="sig-box"><p>Ketua,</p><div class="sig-space">April Yaman</div></div>
+                <div class="sig-box"><p>Penerima,</p><div class="sig-space">${m.n}</div></div>
             </div>
         `;
-        
         new bootstrap.Modal(document.getElementById('slipModal')).show();
     }
 
-    // Initial Load
-    document.getElementById('searchName').addEventListener('input', renderPayroll);
-    window.onload = updateFinance;
+    // 7. CEK HISTORI MAKAN
+    function cekMakan() {
+        const input = document.getElementById('makanSearch').value.toLowerCase();
+        const m = dataPema.find(x => x.n.toLowerCase().includes(input));
+        const res = document.getElementById('makanResult');
+        if(!m) { res.innerHTML = "Nama tidak ditemukan."; return; }
 
+        let table = `<table class="table table-sm small"><thead><tr><th>Tgl</th><th>Biaya</th></tr></thead><tbody>`;
+        tanggalList.forEach((tgl, idx) => {
+            if(m.v[idx] > 0) table += `<tr><td>${tgl}</td><td>${format(m.v[idx])}</td></tr>`;
+        });
+        table += `<tr class="table-info fw-bold"><td>TOTAL</td><td>${format(m.t)}</td></tr></tbody></table>`;
+        res.innerHTML = table;
+    }
+
+    document.getElementById('searchName').addEventListener('input', renderTable);
+    window.onload = hitungKas;
 </script>
