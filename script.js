@@ -1,5 +1,5 @@
 <script>
-    // 1. DATA MASTER (Hasil mapping dari gambar yang kamu kirim)
+    // DATA MASTER - Uang Makan sebagai pengeluaran/potongan
     const daftarMahasiswa = [
         { nama: "April Yaman Zai", makan: 114500 },
         { nama: "Afrida Sitanggang", makan: 155500 },
@@ -47,12 +47,10 @@
     const UPAH_PER_HARI = 40000;
     let iuranPerOrang = 0;
 
-    // 2. FUNGSI FORMAT RUPIAH
     function toRp(angka) {
         return "Rp " + new Intl.NumberFormat('id-ID').format(angka);
     }
 
-    // 3. LOGIKA HITUNG KAS KELOMPOK (Dapur, Posko, dll)
     function updateGlobalFinance() {
         const d = parseFloat(document.getElementById('inputDapur').value) || 0;
         const p = parseFloat(document.getElementById('inputPosko').value) || 0;
@@ -60,21 +58,14 @@
         const r = parseFloat(document.getElementById('inputRugi').value) || 0;
 
         const totalPengeluaran = d + p + l + r;
-        iuranPerOrang = Math.ceil(totalPengeluaran / 41); // Pembagian ke 41 orang
+        iuranPerOrang = Math.ceil(totalPengeluaran / 41);
 
         document.getElementById('totalKas').innerText = toRp(totalPengeluaran);
         document.getElementById('displayIuran').innerText = toRp(iuranPerOrang);
         
-        // Simpan ke localstorage agar tidak hilang
-        localStorage.setItem('kas_dapur', d);
-        localStorage.setItem('kas_posko', p);
-        localStorage.setItem('kas_lain', l);
-        localStorage.setItem('kas_rugi', r);
-
         renderPayrollTable();
     }
 
-    // 4. RENDER TABEL PAYROLL
     function renderPayrollTable() {
         const tbody = document.getElementById('payrollTableBody');
         const search = document.getElementById('searchName').value.toLowerCase();
@@ -82,15 +73,14 @@
 
         daftarMahasiswa.forEach((mhs, id) => {
             if (mhs.nama.toLowerCase().includes(search)) {
-                // Ambil data input dari LocalStorage
                 const hari = localStorage.getItem(`h_${id}`) || 0;
                 const tambahan = localStorage.getItem(`t_${id}`) || 0;
                 const bonus = localStorage.getItem(`b_${id}`) || 0;
                 const potPribadi = localStorage.getItem(`pp_${id}`) || 0;
 
-                // Rumus: (Hari+Tambah)*40rb + Makan + Bonus - IuranKelompok - PotPribadi
-                const upahTotal = (parseInt(hari) + parseInt(tambahan)) * UPAH_PER_HARI;
-                const totalDiterima = upahTotal + mhs.makan + parseInt(bonus) - iuranPerOrang - parseInt(potPribadi);
+                const totalPendapatan = ((parseInt(hari) + parseInt(tambahan)) * UPAH_PER_HARI) + parseInt(bonus);
+                const totalPotongan = mhs.makan + iuranPerOrang + parseInt(potPribadi);
+                const totalDiterima = totalPendapatan - totalPotongan;
 
                 tbody.innerHTML += `
                     <tr>
@@ -98,9 +88,9 @@
                         <td><input type="number" class="form-control form-control-sm" value="${hari}" onchange="saveEntry(${id}, 'h', this.value)"></td>
                         <td><input type="number" class="form-control form-control-sm" value="${tambahan}" onchange="saveEntry(${id}, 't', this.value)"></td>
                         <td><input type="number" class="form-control form-control-sm" value="${bonus}" onchange="saveEntry(${id}, 'b', this.value)"></td>
-                        <td class="text-muted">${toRp(mhs.makan)}</td>
+                        <td class="text-danger fw-semibold">${toRp(mhs.makan)}</td>
                         <td><input type="number" class="form-control form-control-sm" value="${potPribadi}" onchange="saveEntry(${id}, 'pp', this.value)"></td>
-                        <td class="fw-bold text-success">${toRp(totalDiterima)}</td>
+                        <td class="fw-bold ${totalDiterima >= 0 ? 'text-success' : 'text-danger'}">${toRp(totalDiterima)}</td>
                         <td>
                             <button class="btn btn-sm btn-dark" onclick="generateSlip(${id})">Slip</button>
                         </td>
@@ -110,56 +100,49 @@
         });
     }
 
-    // 5. SIMPAN INPUT KE LOCALSTORAGE
     function saveEntry(id, key, val) {
         localStorage.setItem(`${key}_${id}`, val);
-        renderPayrollTable(); // Refresh tabel setelah input
+        renderPayrollTable();
     }
 
-    // 6. GENERATE SLIP GAJI (MODAL)
     function generateSlip(id) {
         const m = daftarMahasiswa[id];
-        const h = localStorage.getItem(`h_${id}`) || 0;
-        const t = localStorage.getItem(`t_${id}`) || 0;
-        const b = localStorage.getItem(`b_${id}`) || 0;
-        const pp = localStorage.getItem(`pp_${id}`) || 0;
+        const h = parseInt(localStorage.getItem(`h_${id}`)) || 0;
+        const t = parseInt(localStorage.getItem(`t_${id}`)) || 0;
+        const b = parseInt(localStorage.getItem(`b_${id}`)) || 0;
+        const pp = parseInt(localStorage.getItem(`pp_${id}`)) || 0;
 
         const upahPokok = h * UPAH_PER_HARI;
         const upahTambah = t * UPAH_PER_HARI;
-        const total = upahPokok + upahTambah + m.makan + parseInt(b) - iuranPerOrang - parseInt(pp);
+        const totalPendapatan = upahPokok + upahTambah + b;
+        const totalPotongan = m.makan + iuranPerOrang + pp;
+        const grandTotal = totalPendapatan - totalPotongan;
 
         const html = `
             <div class="p-2">
                 <p class="mb-1"><strong>Nama:</strong> ${m.nama}</p>
                 <hr>
-                <div class="d-flex justify-content-between"><span>Upah (${h} hari x 40rb)</span> <span>${toRp(upahPokok)}</span></div>
-                <div class="d-flex justify-content-between"><span>Tambahan Hari (${t} x 40rb)</span> <span>${toRp(upahTambah)}</span></div>
-                <div class="d-flex justify-content-between text-primary"><span>Uang Makan (Tracking)</span> <span>${toRp(m.makan)}</span></div>
-                <div class="d-flex justify-content-between"><span>Bonus/Lainnya</span> <span>${toRp(b)}</span></div>
-                <hr>
-                <div class="d-flex justify-content-between text-danger"><span>Iuran Kelompok (Bagi Rata)</span> <span>-${toRp(iuranPerOrang)}</span></div>
+                <div class="fw-bold mb-2">PENGHASILAN (+)</div>
+                <div class="d-flex justify-content-between"><span>Upah (${h} hari)</span> <span>${toRp(upahPokok)}</span></div>
+                <div class="d-flex justify-content-between"><span>Lembur (${t} hari)</span> <span>${toRp(upahTambah)}</span></div>
+                <div class="d-flex justify-content-between"><span>Bonus</span> <span>${toRp(b)}</span></div>
+                <div class="d-flex justify-content-between border-top mt-1"><strong>Total Pendapatan</strong> <strong>${toRp(totalPendapatan)}</strong></div>
+                
+                <div class="fw-bold mt-3 mb-2">PENGELUARAN/POTONGAN (-)</div>
+                <div class="d-flex justify-content-between text-danger"><span>Biaya Uang Makan</span> <span>-${toRp(m.makan)}</span></div>
+                <div class="d-flex justify-content-between text-danger"><span>Iuran Kelompok</span> <span>-${toRp(iuranPerOrang)}</span></div>
                 <div class="d-flex justify-content-between text-danger"><span>Potongan Pribadi</span> <span>-${toRp(pp)}</span></div>
-                <hr>
-                <div class="d-flex justify-content-between fw-bold fs-5"><span>TOTAL TERIMA</span> <span>${toRp(total)}</span></div>
+                <div class="d-flex justify-content-between border-top mt-1"><strong>Total Potongan</strong> <strong>-${toRp(totalPotongan)}</strong></div>
+                
+                <hr style="border-top: 2px solid #000">
+                <div class="d-flex justify-content-between fw-bold fs-5"><span>SISA DITERIMA</span> <span>${toRp(grandTotal)}</span></div>
             </div>
         `;
 
         document.getElementById('slipContent').innerHTML = html;
-        const modal = new bootstrap.Modal(document.getElementById('slipModal'));
-        modal.show();
+        new bootstrap.Modal(document.getElementById('slipModal')).show();
     }
 
-    // 7. EVENT LISTENER & LOAD AWAL
     document.getElementById('searchName').addEventListener('input', renderPayrollTable);
-
-    window.onload = function() {
-        // Load nilai kas dari storage jika ada
-        if(localStorage.getItem('kas_dapur')) {
-            document.getElementById('inputDapur').value = localStorage.getItem('kas_dapur');
-            document.getElementById('inputPosko').value = localStorage.getItem('kas_posko');
-            document.getElementById('inputLain').value = localStorage.getItem('kas_lain');
-            document.getElementById('inputRugi').value = localStorage.getItem('kas_rugi');
-        }
-        updateGlobalFinance();
-    };
+    window.onload = updateGlobalFinance;
 </script>
